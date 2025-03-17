@@ -46,10 +46,15 @@ class ServiceController extends Controller
     $service = Service::find($id);
 
     if (!$service) {
-        return response()->json(['message' => 'Service not found'], 404);
+        return response()->json(['message' => 'Layanan tidak ditemukan'], 404);
     }
 
-    return response()->json($service);
+    return response()->json([
+        'id' => $service->id,
+        'name' => $service->name,
+        'description' => $service->description,
+        'price' => $service->price,
+    ]);
 }
 
     /**

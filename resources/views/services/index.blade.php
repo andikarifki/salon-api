@@ -58,9 +58,9 @@ function loadServices() {
                     <td>${service.description || '-'}</td>
                     <td>Rp ${parseFloat(service.price).toLocaleString()}</td>
                     <td>
+                        <button class="btn btn-info btn-sm" onclick="viewDetail(${service.id})">Detail</button>
                         <a href="/services/edit?id=${service.id}" class="btn btn-warning btn-sm">Edit</a>
                         <button class="btn btn-danger btn-sm" onclick="deleteService(${service.id})">Delete</button>
-                        <button class="btn btn-info btn-sm" onclick="viewDetail(${service.id})">Detail</button>
                     </td>
                 </tr>`;
                 tableBody.innerHTML += row;
