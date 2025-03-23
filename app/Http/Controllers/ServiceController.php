@@ -28,13 +28,25 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric'
+            'price' => 'required|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
-
-        $service = Service::create($validated);
+    
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('services', 'public');
+        }
+    
+        $service = Service::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'image' => $imagePath
+        ]);
+    
         return response()->json($service, 201);
     }
 
@@ -64,27 +76,29 @@ class ServiceController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-    {
-        // Cari service berdasarkan ID
-        $service = Service::find($id);
-    
-        // Jika tidak ditemukan, return error
-        if (!$service) {
-            return response()->json(['message' => 'Service not found'], 404);
+{
+    $service = Service::findOrFail($id);
+
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+    ]);
+
+    if ($request->hasFile('image')) {
+        if ($service->image) {
+            Storage::disk('public')->delete($service->image);
         }
-    
-        // Validasi request
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
-        ]);
-    
-        // Update data service
-        $service->update($validatedData);
-    
-        return response()->json($service);
+        $imagePath = $request->file('image')->store('services', 'public');
+        $service->image = $imagePath;
     }
+
+    $service->update($request->except('image') + ['image' => $service->image]);
+
+    return response()->json($service, 200);
+}
+
     
 
     /**
