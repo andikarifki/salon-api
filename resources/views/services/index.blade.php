@@ -74,11 +74,20 @@ function viewDetail(id) {
         .then(response => response.json())
         .then(service => {
             let detailModalBody = document.getElementById("service-detail");
+
+            let imageUrl = service.image && service.image.startsWith("services/") 
+                ? `/storage/${service.image}` 
+                : 'https://via.placeholder.com/300?text=No+Image';
+
             detailModalBody.innerHTML = `
+                <div class="text-center">
+                    <img src="${imageUrl}" alt="Gambar Layanan" class="img-fluid rounded mb-3" style="max-width: 300px;">
+                </div>
                 <p><strong>Nama:</strong> ${service.name}</p>
                 <p><strong>Deskripsi:</strong> ${service.description || '-'}</p>
                 <p><strong>Harga:</strong> Rp ${parseFloat(service.price).toLocaleString()}</p>
             `;
+
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         })
         .catch(error => console.error("Error fetching service details:", error));

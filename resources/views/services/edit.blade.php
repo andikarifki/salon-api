@@ -4,7 +4,7 @@
 <div class="container">
     <h2 class="mt-3">Edit Layanan</h2>
 
-    <form id="edit-service-form">
+    <form id="edit-service-form" enctype="multipart/form-data">
         <input type="hidden" id="service-id"> <!-- Menyimpan ID layanan -->
 
         <div class="mb-3">
@@ -20,6 +20,12 @@
         <div class="mb-3">
             <label for="price" class="form-label">Harga</label>
             <input type="number" class="form-control" id="price" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="image" class="form-label">Gambar Layanan</label>
+            <input type="file" class="form-control" id="image" accept="image/*">
+            <img id="preview-image" src="" alt="Preview Gambar" class="img-thumbnail mt-2" style="max-width: 200px;">
         </div>
 
         <button type="submit" class="btn btn-primary">Update</button>
@@ -56,6 +62,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("name").value = data.name || '';
                 document.getElementById("description").value = data.description || '';
                 document.getElementById("price").value = data.price || 0;
+
+                // Menampilkan gambar lama jika ada
+                if (data.image) {
+                    document.getElementById("preview-image").src = `http://127.0.0.1:8000/storage/${data.image}`;
+                }
             } else {
                 alert("Data layanan tidak ditemukan!");
                 window.location.href = "/services";
@@ -66,25 +77,36 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Gagal memuat data layanan!");
         });
 
+    // Preview gambar saat memilih file
+    document.getElementById("image").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById("preview-image").src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     // Submit Form (Update Data)
     document.getElementById("edit-service-form").addEventListener("submit", function(event) {
         event.preventDefault();
 
-        let id = document.getElementById("service-id").value;
-        let name = document.getElementById("name").value;
-        let description = document.getElementById("description").value;
-        let price = document.getElementById("price").value;
+        let formData = new FormData();
+        formData.append("_method", "PUT"); // Laravel butuh _method PUT
+        formData.append("name", document.getElementById("name").value);
+        formData.append("description", document.getElementById("description").value);
+        formData.append("price", document.getElementById("price").value);
 
-        fetch(`http://127.0.0.1:8000/api/services/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: name,
-                description: description,
-                price: price
-            })
+        let imageFile = document.getElementById("image").files[0];
+        if (imageFile) {
+            formData.append("image", imageFile);
+        }
+
+        fetch(`http://127.0.0.1:8000/api/services/${serviceId}`, {
+            method: "POST", // Gunakan POST dengan _method=PUT
+            body: formData
         })
         .then(response => response.json())
         .then(data => {

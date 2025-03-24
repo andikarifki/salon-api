@@ -66,6 +66,7 @@ class ServiceController extends Controller
         'name' => $service->name,
         'description' => $service->description,
         'price' => $service->price,
+        'image' => $service->image,
     ]);
 }
 
@@ -81,29 +82,32 @@ class ServiceController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-{
-    $service = Service::findOrFail($id);
-
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'price' => 'required|numeric',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
-    ]);
-
-    if ($request->hasFile('image')) {
-        if ($service->image) {
-            Storage::disk('public')->delete($service->image);
+    {
+        $service = Service::findOrFail($id);
+    
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048' // Validasi gambar
+        ]);
+    
+        // Update data layanan
+        $service->name = $request->name;
+        $service->description = $request->description;
+        $service->price = $request->price;
+    
+        // Update gambar jika ada file baru
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('services', 'public');
+            $service->image = $imagePath;
         }
-        $imagePath = $request->file('image')->store('services', 'public');
-        $service->image = $imagePath;
+    
+        $service->save();
+    
+        return response()->json($service);
     }
-
-    $service->update($request->except('image') + ['image' => $service->image]);
-
-    return response()->json($service, 200);
-}
-
+    
     
 
     /**
