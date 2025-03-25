@@ -10,12 +10,9 @@ class ServiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $perPage = $request->query('per_page', 5); // Default 5 item per halaman
-        $services = Service::paginate($perPage);
-
-        return response()->json($services);
+        return response()->json(Service::all());
     }
 
     /**
