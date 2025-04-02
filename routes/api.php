@@ -27,3 +27,14 @@ Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
 
 Route::get('/services/search/{query}', [ServiceController::class, 'search']);
 
+use App\Http\Controllers\UserAuthController;
+
+Route::post('/user/register', [UserAuthController::class, 'register']);
+Route::post('/user/login', [UserAuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/user/logout', [UserAuthController::class, 'logout']);
+    Route::get('/user/profile', function (Request $request) {
+        return response()->json($request->user());
+    });
+});
