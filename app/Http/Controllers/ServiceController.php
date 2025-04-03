@@ -30,45 +30,46 @@ class ServiceController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'price' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar
         ]);
-    
+
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('services', 'public');
+            $imagePath = $request->file('image')->store('services', 'public'); // Simpan ke storage/public/services
         }
-    
+
         $service = Service::create([
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
-            'image' => $imagePath
+            'image' => $imagePath,
         ]);
-    
-        return response()->json($service, 201);
+
+        return response()->json($service);
     }
+
 
     /**
      * Display the specified resource.
      */
     public function show($id)
-{
-    $service = Service::find($id);
+    {
+        $service = Service::find($id);
 
-    if (!$service) {
-        return response()->json(['message' => 'Layanan tidak ditemukan'], 404);
+        if (!$service) {
+            return response()->json(['message' => 'Layanan tidak ditemukan'], 404);
+        }
+
+        return response()->json([
+            'id' => $service->id,
+            'name' => $service->name,
+            'description' => $service->description,
+            'price' => $service->price,
+            'image' => $service->image ? asset('storage/' . $service->image) : null
+        ]);
     }
-
-    return response()->json([
-        'id' => $service->id,
-        'name' => $service->name,
-        'description' => $service->description,
-        'price' => $service->price,
-        'image' => $service->image ? asset('storage/' . $service->image) : null
-    ]);
-}
 
     /**
      * Show the form for editing the specified resource.
@@ -84,32 +85,30 @@ class ServiceController extends Controller
     public function update(Request $request, $id)
     {
         $service = Service::findOrFail($id);
-    
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
             'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048' // Validasi gambar
         ]);
-    
+
         // Update data layanan
         $service->name = $request->name;
         $service->description = $request->description;
         $service->price = $request->price;
-    
+
         // Update gambar jika ada file baru
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('services', 'public');
             $service->image = $imagePath;
         }
-    
+
         $service->save();
-    
+
         return response()->json(['message' => 'Service updated successfully'], 200);
 
     }
-    
-    
 
     /**
      * Remove the specified resource from storage.
@@ -121,21 +120,21 @@ class ServiceController extends Controller
         if (!$service) {
             return response()->json(['message' => 'Service not found'], 404);
         }
-    
+
         $service->delete();
-    
+
         return response()->json(['message' => 'Service deleted successfully']);
     }
-    
+
     public function search($query)
-{
-    $services = Service::where('name', 'LIKE', "%$query%")->get();
+    {
+        $services = Service::where('name', 'LIKE', "%$query%")->get();
 
-    if ($services->isEmpty()) {
-        return response()->json(['message' => 'No services found'], 404);
+        if ($services->isEmpty()) {
+            return response()->json(['message' => 'No services found'], 404);
+        }
+
+        return response()->json($services);
     }
-
-    return response()->json($services);
-}
 
 }
