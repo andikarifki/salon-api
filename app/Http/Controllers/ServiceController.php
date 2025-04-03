@@ -66,7 +66,7 @@ class ServiceController extends Controller
         'name' => $service->name,
         'description' => $service->description,
         'price' => $service->price,
-        'image' => $service->image,
+        'image' => $service->image ? asset('storage/' . $service->image) : null
     ]);
 }
 
@@ -105,7 +105,8 @@ class ServiceController extends Controller
     
         $service->save();
     
-        return response()->json($service);
+        return response()->json(['message' => 'Service updated successfully'], 200);
+
     }
     
     
