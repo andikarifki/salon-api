@@ -86,29 +86,22 @@ class ServiceController extends Controller
     {
         $service = Service::findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'price' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048' // Validasi gambar
+            'image' => 'nullable|image|max:2048', // Pastikan ini sesuai dengan yang dikirim dari frontend
         ]);
 
-        // Update data layanan
-        $service->name = $request->name;
-        $service->description = $request->description;
-        $service->price = $request->price;
-
-        // Update gambar jika ada file baru
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('services', 'public');
-            $service->image = $imagePath;
+            $path = $request->file('image')->store('services', 'public');
+            $validated['image'] = $path;
         }
 
-        $service->save();
-
-        return response()->json(['message' => 'Service updated successfully'], 200);
-
+        $service->update($validated);
+        return response()->json($service);
     }
+
 
     /**
      * Remove the specified resource from storage.
