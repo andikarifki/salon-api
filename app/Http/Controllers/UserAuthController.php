@@ -56,4 +56,27 @@ class UserAuthController extends Controller
 
         return response()->json(['message' => 'Logout berhasil']);
     }
+    public function index()
+    {
+        $users = User::all();
+        return response()->json($users);
+    }
+
+    public function destroy($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'Pengguna tidak ditemukan.'], 404);
+        }
+
+        // Jangan izinkan penghapusan diri sendiri (opsional)
+        // if (auth()->check() && auth()->id() === $user->id) {
+        //     return response()->json(['message' => 'Anda tidak dapat menghapus akun Anda sendiri.'], 403);
+        // }
+
+        $user->delete();
+
+        return response()->json(['message' => 'Pengguna berhasil dihapus.']);
+    }
 }
