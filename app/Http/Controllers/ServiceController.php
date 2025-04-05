@@ -73,7 +73,7 @@ class ServiceController extends Controller
             return response()->json(['message' => 'Layanan tidak ditemukan'], 404);
         }
 
-        // Eager load relasi 'typeService' untuk satu service (opsional, tapi baik untuk performa jika Anda sering mengakses relasi)
+        // Eager load relasi 'typeService'
         $service = Service::with('typeService')->findOrFail($id);
 
         return response()->json([
@@ -82,7 +82,11 @@ class ServiceController extends Controller
             'description' => $service->description,
             'price' => $service->price,
             'image' => $service->image ? asset('storage/' . $service->image) : null,
-            'id_type' => $service->id_type // Tambahkan ini untuk mengirim id_type ke frontend
+            'type_service' => [ // Sertakan informasi type_service
+                'id' => $service->typeService->id,
+                'name' => $service->typeService->name,
+                // Anda bisa menambahkan properti lain dari typeService jika diperlukan
+            ],
         ]);
     }
 
