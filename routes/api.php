@@ -40,3 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json($request->user());
     });
 });
+
+use App\Http\Controllers\TypeServiceController;
+
+Route::resource('type-services', TypeServiceController::class);

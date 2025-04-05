@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Service;
 use Illuminate\Http\Request;
+use App\Models\TypeService; // Import the TypeService model
+use Illuminate\Support\Facades\Validator;
 
 class ServiceController extends Controller
 {
@@ -12,7 +14,9 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        return response()->json(Service::all());
+        // Eager load relasi 'typeService'
+        $services = Service::with('typeService')->get();
+        return response()->json($services); // Kembalikan hasil eager loading   
     }
 
     /**
@@ -28,26 +32,33 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar
+            'id_type' => 'required|integer|exists:type_services,id', // Validasi id_type
         ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('services', 'public'); // Simpan ke storage/public/services
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        } else {
+            // Kode yang dijalankan jika validasi berhasil
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('services', 'public'); // Simpan ke storage/public/services
+            }
+
+            $service = Service::create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'price' => $request->price,
+                'image' => $imagePath,
+                'id_type' => $request->id_type, // Simpan id_type
+            ]);
+
+            return response()->json($service, 201); // Return 201 Created status code
         }
-
-        $service = Service::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'price' => $request->price,
-            'image' => $imagePath,
-        ]);
-
-        return response()->json($service);
     }
 
 
@@ -62,12 +73,16 @@ class ServiceController extends Controller
             return response()->json(['message' => 'Layanan tidak ditemukan'], 404);
         }
 
+        // Eager load relasi 'typeService' untuk satu service (opsional, tapi baik untuk performa jika Anda sering mengakses relasi)
+        $service = Service::with('typeService')->findOrFail($id);
+
         return response()->json([
             'id' => $service->id,
             'name' => $service->name,
             'description' => $service->description,
             'price' => $service->price,
-            'image' => $service->image ? asset('storage/' . $service->image) : null
+            'image' => $service->image ? asset('storage/' . $service->image) : null,
+            'id_type' => $service->id_type // Tambahkan ini untuk mengirim id_type ke frontend
         ]);
     }
 
@@ -91,6 +106,7 @@ class ServiceController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric',
             'image' => 'nullable|image|max:2048', // Pastikan ini sesuai dengan yang dikirim dari frontend
+            'id_type' => 'required|integer|exists:type_services,id', // Tambahkan validasi untuk id_type
         ]);
 
         if ($request->hasFile('image')) {
@@ -101,7 +117,6 @@ class ServiceController extends Controller
         $service->update($validated);
         return response()->json($service);
     }
-
 
     /**
      * Remove the specified resource from storage.
