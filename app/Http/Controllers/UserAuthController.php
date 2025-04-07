@@ -15,12 +15,14 @@ class UserAuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:6',
+            'role' => 'nullable|string|in:admin,editor,user',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->input('role', 'user'), // Jika role tidak diisi, defaultnya 'user'
         ]);
 
         return response()->json([
