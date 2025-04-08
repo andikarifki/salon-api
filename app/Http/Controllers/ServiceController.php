@@ -82,6 +82,7 @@ class ServiceController extends Controller
             'description' => $service->description,
             'price' => $service->price,
             'image' => $service->image ? asset('storage/' . $service->image) : null,
+            'id_type' => $service->id_type, // Tambahkan id_type di sini
             'type_service' => [ // Sertakan informasi type_service
                 'id' => $service->typeService->id,
                 'name' => $service->typeService->name,
