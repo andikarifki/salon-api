@@ -141,7 +141,9 @@ class ServiceController extends Controller
 
     public function search($query)
     {
-        $services = Service::where('name', 'LIKE', "%$query%")->get();
+        $services = Service::with('typeService')
+            ->where('name', 'LIKE', "%$query%")
+            ->get();
 
         if ($services->isEmpty()) {
             return response()->json(['message' => 'No services found'], 404);
