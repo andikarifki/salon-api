@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Service;
 use Illuminate\Http\Request;
-use App\Models\TypeService; // Import the TypeService model
 use Illuminate\Support\Facades\Validator;
 
 class ServiceController extends Controller
