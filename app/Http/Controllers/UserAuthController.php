@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException; // Import ValidationException
 
 class UserAuthController extends Controller
 {
@@ -58,6 +59,7 @@ class UserAuthController extends Controller
 
         return response()->json(['message' => 'Logout berhasil']);
     }
+
     public function index()
     {
         $users = User::all();
@@ -80,5 +82,46 @@ class UserAuthController extends Controller
         $user->delete();
 
         return response()->json(['message' => 'Pengguna berhasil dihapus.']);
+    }
+
+    public function editProfile(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'Pengguna tidak ditemukan.'], 404);
+        }
+
+        $rules = [
+            'name' => 'nullable|string|max:255',
+            'email' => ['nullable', 'string', 'email', Rule::unique('users')->ignore($user->id)],
+            'password' => 'nullable|string|min:6',
+            'role' => 'nullable|string|in:admin,editor,user',
+        ];
+
+        $request->validate($rules);
+
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+
+        if ($request->has('email')) {
+            $user->email = $request->email;
+        }
+
+        if ($request->has('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        if ($request->has('role')) {
+            $user->role = $request->role;
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profil pengguna berhasil diperbarui.',
+            'user' => $user,
+        ]);
     }
 }

@@ -33,6 +33,7 @@ Route::post('/user/register', [UserAuthController::class, 'register']);
 Route::post('/user/login', [UserAuthController::class, 'login']);
 Route::get('/users', [UserAuthController::class, 'index']);
 Route::delete('/users/{id}', [UserAuthController::class, 'destroy']);
+Route::put('/users/{id}', [UserAuthController::class, 'editProfile']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/logout', [UserAuthController::class, 'logout']);
