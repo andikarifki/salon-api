@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('services', function (Blueprint $table) {
-            $table->unsignedBigInteger('id_type')->nullable();
-            $table->foreign('id_type')->references('id')->on('service_types')->onDelete('cascade');
-            $table->index('id_type'); // Opsional: tambahkan index untuk performa
+            // $table->unsignedBigInteger('id_type')->nullable();
+            // $table->foreign('id_type')->references('id')->on('service_types')->onDelete('cascade');
+            // $table->index('id_type'); // Opsional: tambahkan index untuk performa
         });
     }
 

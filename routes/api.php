@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\UserAuthController;
+use App\Http\Controllers\TypeServiceController;
+use App\Http\Controllers\ImageController; // Import ImageController yang benar
 
 /*
 |--------------------------------------------------------------------------
@@ -24,10 +27,7 @@ Route::post('/services', [ServiceController::class, 'store']);
 Route::get('/services/{id}', [ServiceController::class, 'show']);
 Route::put('/services/{id}', [ServiceController::class, 'update']);
 Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
-
 Route::get('/services/search/{query}', [ServiceController::class, 'search']);
-
-use App\Http\Controllers\UserAuthController;
 
 Route::post('/user/register', [UserAuthController::class, 'register']);
 Route::post('/user/login', [UserAuthController::class, 'login']);
@@ -42,6 +42,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-use App\Http\Controllers\TypeServiceController;
-
 Route::resource('type-services', TypeServiceController::class);
+
+// Route untuk ImageController
+Route::post('/carousel/upload', [ImageController::class, 'uploadCarousel']);
+Route::get('/carousel', [ImageController::class, 'getCarouselImages']);
+Route::delete('/carousel/{id}', [ImageController::class, 'deleteCarouselImage']);
