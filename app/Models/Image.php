@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Image extends Model
 {
-       /**
+    /**
      * The table associated with the model.
      *
      * @var string
@@ -21,8 +21,10 @@ class Image extends Model
      */
     protected $fillable = [
         'path',
-        'alt_text',
+        'alt',
         'caption',
+        'order',
+        'is_carousel',
     ];
 
     /**

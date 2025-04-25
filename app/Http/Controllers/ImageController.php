@@ -42,8 +42,7 @@ class ImageController extends Controller
 
                 // Buat record di database
                 $image = Image::create([
-                    // Simpan path relatif ke storage, Storage::url akan buat url lengkap.
-                    'path' => 'carousel/' . $filename,
+                    'path' => 'carousel/' . $filename, // Simpan path relatif
                     'is_carousel' => true,
                 ]);
 
@@ -70,6 +69,7 @@ class ImageController extends Controller
             'message' => 'Tidak ada gambar yang diunggah.',
         ], 400);
     }
+
 
     /**
      * Mendapatkan semua gambar carousel.
